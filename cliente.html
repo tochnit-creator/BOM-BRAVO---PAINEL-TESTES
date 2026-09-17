@@ -777,14 +777,15 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
 
   function renderStepper(statusKey) {
     const idx = STEPS.findIndex((s) => s.key === statusKey);
+    const isFinal = idx === STEPS.length - 1; // "retirado" — jornada completa, nada mais "em andamento"
     stepperEl.innerHTML = STEPS.map((s, i) => {
       let cls = "step";
-      if (i < idx) cls += " done";
+      if (i < idx || (isFinal && i === idx)) cls += " done";
       else if (i === idx) cls += " current";
       return `
         <div class="${cls}">
           <div class="track"><div class="track-fill"></div></div>
-          <div class="step-dot">${i < idx ? ICON_SVG.check : s.icon}</div>
+          <div class="step-dot">${i < idx || (isFinal && i === idx) ? ICON_SVG.check : s.icon}</div>
           <div class="step-label">${s.label}</div>
         </div>`;
     }).join("");
