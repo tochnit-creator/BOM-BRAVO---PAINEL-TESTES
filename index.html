@@ -592,6 +592,65 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
 .pedido-card .btn { width: 100%; }
 .pedido-card .concluido-tag { font-size: 11.5px; color: var(--smoke); text-align: center; font-weight: 600; }
 
+/* itens: resumo compacto que expande/oculta ao clicar */
+.pedido-itens-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 12.5px; color: var(--ink-soft); margin-bottom: 9px;
+  cursor: pointer; border-radius: 8px; padding: 2px 4px; margin-left: -4px; margin-right: -4px;
+  transition: background 0.12s ease;
+}
+.pedido-itens-toggle:hover { background: rgba(140, 120, 90, 0.08); }
+.pedido-itens-toggle .resumo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.pedido-itens-toggle .chevron { flex-shrink: 0; color: var(--smoke); transition: transform 0.18s ease; }
+.pedido-card.expanded .pedido-itens-toggle .chevron { transform: rotate(180deg); }
+.pedido-card.expanded .pedido-itens-toggle .resumo { white-space: normal; }
+.pedido-itens-list {
+  display: none;
+  list-style: none; margin: -3px 0 11px; padding: 0 0 0 2px;
+  font-size: 12.5px; color: var(--ink-soft);
+}
+.pedido-card.expanded .pedido-itens-list { display: block; }
+.pedido-itens-list li { padding: 5px 0; border-bottom: 1px dashed var(--line); }
+.pedido-itens-list li:last-child { border-bottom: none; }
+
+.pedido-card-actions { display: flex; gap: 8px; }
+.pedido-card-actions .btn { width: auto; flex: 1; }
+.pedido-print-btn {
+  flex: 0 0 auto; width: 38px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper); border: 1px solid var(--line-strong); color: var(--ink-soft);
+  border-radius: var(--radius-control);
+}
+.pedido-print-btn:hover { background: var(--cream); border-color: var(--smoke); }
+.pedido-card .concluido-tag { flex: 1; }
+
+/* ---------- ticket de impressão ---------- */
+#print-ticket { display: none; }
+@media print {
+  body.printing > *:not(#print-ticket) { display: none !important; }
+  body.printing #print-ticket {
+    display: block !important;
+    position: static; width: 100%; padding: 0; margin: 0;
+  }
+}
+.ticket-print-box {
+  width: 320px; margin: 0 auto; padding: 16px 6px;
+  font-family: var(--font-body); color: #000; background: #fff;
+}
+.ticket-print-box .tp-logo { text-align: center; margin-bottom: 6px; }
+.ticket-print-box .tp-logo img { width: 46px; height: 46px; object-fit: contain; }
+.ticket-print-box h2 { text-align: center; font-size: 16px; margin: 0 0 2px; }
+.ticket-print-box .tp-sub { text-align: center; font-size: 11px; color: #333; margin-bottom: 12px; }
+.ticket-print-box .tp-rule { border-top: 1px dashed #000; margin: 10px 0; }
+.ticket-print-box .tp-codigo { text-align: center; font-size: 22px; font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px; }
+.ticket-print-box .tp-row { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
+.ticket-print-box .tp-itens { list-style: none; padding: 0; margin: 8px 0; font-size: 12.5px; }
+.ticket-print-box .tp-itens li { padding: 4px 0; border-bottom: 1px dashed #999; }
+.ticket-print-box .tp-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; margin-top: 8px; }
+.ticket-print-box .tp-obs { margin-top: 16px; font-size: 11.5px; }
+.ticket-print-box .tp-obs .linha { border-bottom: 1px solid #000; height: 20px; margin-top: 10px; }
+.ticket-print-box .tp-footer { text-align: center; font-size: 10px; color: #555; margin-top: 14px; }
+
 /* toolbar (pedidos) */
 #pedidos-controls { display: flex; gap: 10px; align-items: center; }
 #pedidos-search { width: 260px; }
@@ -802,6 +861,30 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
   </div>
 </div>
 
+<!-- ===================== TICKET DE IMPRESSÃO (só aparece ao imprimir) ===================== -->
+<div id="print-ticket">
+  <div class="ticket-print-box">
+    <div class="tp-logo"><img id="tp-logo-img" src="" alt="Bom Bravo" /></div>
+    <h2>Bom Bravo</h2>
+    <div class="tp-sub">Ticket de pedido</div>
+    <div class="tp-rule"></div>
+    <div class="tp-codigo" id="tp-codigo">BB-0000</div>
+    <div class="tp-row"><span>Cliente</span><span id="tp-cliente">—</span></div>
+    <div class="tp-row"><span>Contato</span><span id="tp-contato">—</span></div>
+    <div class="tp-row"><span>Pedido feito em</span><span id="tp-data">—</span></div>
+    <div class="tp-rule"></div>
+    <ul class="tp-itens" id="tp-itens"></ul>
+    <div class="tp-total"><span>Total</span><span id="tp-total">R$ 0,00</span></div>
+    <div class="tp-row" style="margin-top:4px;"><span>Pagamento</span><span id="tp-pagamento">—</span></div>
+    <div class="tp-obs">
+      Observações:
+      <div class="linha"></div>
+      <div class="linha"></div>
+    </div>
+    <div class="tp-footer">Impresso em <span id="tp-impresso"></span></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 (function () {
@@ -839,6 +922,7 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
   let clientesSearchTerm = "";
   let clientesSortMode = "inatividade";
   let npItens = [];
+  let expandedCodes = new Set();
 
   // ---------- helpers ----------
   function money(v) { return Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
@@ -960,21 +1044,38 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
 
   function renderPedidoCard(p) {
     const actionLabel = ACTION_LABEL[p.status];
-    const itensPreview = (p.itens || []).map(formatItem).join(" · ");
+    const itensArr = p.itens || [];
+    const nomesResumo = itensArr.map((it) => it.nome).join(", ");
+    const resumo = itensArr.length
+      ? `${itensArr.length} ${itensArr.length === 1 ? "item" : "itens"} — ${nomesResumo}`
+      : "Sem itens";
+    const itensListaHtml = itensArr.length
+      ? itensArr.map((it) => `<li>${formatItem(it)}</li>`).join("")
+      : "<li class='muted'>Sem itens detalhados</li>";
     const actionHtml = actionLabel
       ? `<button class="btn btn-sage btn-small" data-avancar="${p.codigo}">${actionLabel}</button>`
       : `<div class="concluido-tag">Concluído</div>`;
+    const expandedCls = expandedCodes.has(p.codigo) ? " expanded" : "";
     return `
-      <div class="pedido-card status-${p.status}">
+      <div class="pedido-card status-${p.status}${expandedCls}">
         <div class="pedido-card-head"><span class="cod">${p.codigo}</span><span class="quando">${formatHora(p.criado_em)}</span></div>
         <div class="cliente">${p.cliente_nome}</div>
         <div class="contato">${p.contato}</div>
-        <div class="itens">${itensPreview || "—"}</div>
+        <div class="pedido-itens-toggle" data-toggle-itens="${p.codigo}">
+          <span class="resumo">${resumo}</span>
+          <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <ul class="pedido-itens-list">${itensListaHtml}</ul>
         <div class="pedido-card-foot">
           <span class="total">${money(p.total)}</span>
           <span class="pagamento-tag">${p.pagamento}</span>
         </div>
-        ${actionHtml}
+        <div class="pedido-card-actions">
+          ${actionHtml}
+          <button type="button" class="pedido-print-btn" data-print="${p.codigo}" title="Imprimir ticket">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M6 14h12v7H6z"/></svg>
+          </button>
+        </div>
       </div>`;
   }
 
@@ -1006,6 +1107,27 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
   }
 
   kanbanBoard.addEventListener("click", async (e) => {
+    const toggleEl = e.target.closest("[data-toggle-itens]");
+    if (toggleEl) {
+      const codigo = toggleEl.dataset.toggleItens;
+      const card = toggleEl.closest(".pedido-card");
+      if (expandedCodes.has(codigo)) {
+        expandedCodes.delete(codigo);
+        card.classList.remove("expanded");
+      } else {
+        expandedCodes.add(codigo);
+        card.classList.add("expanded");
+      }
+      return;
+    }
+
+    const printEl = e.target.closest("[data-print]");
+    if (printEl) {
+      const pedido = pedidosCache.find((p) => p.codigo === printEl.dataset.print);
+      if (pedido) imprimirTicket(pedido);
+      return;
+    }
+
     const btn = e.target.closest("[data-avancar]");
     if (!btn) return;
     const codigo = btn.dataset.avancar;
@@ -1020,6 +1142,26 @@ main.admin-main { padding: 22px 28px 70px; flex: 1; }
     if (error) { alert("Não foi possível atualizar o status. Tente novamente."); }
     await loadPedidos();
   });
+
+  // ---------- imprimir ticket ----------
+  function imprimirTicket(p) {
+    const logoSrc = document.querySelector(".brand-badge img")?.src || "";
+    document.getElementById("tp-logo-img").src = logoSrc;
+    document.getElementById("tp-codigo").textContent = p.codigo;
+    document.getElementById("tp-cliente").textContent = p.cliente_nome || "—";
+    document.getElementById("tp-contato").textContent = p.contato || "—";
+    document.getElementById("tp-data").textContent = formatHora(p.criado_em);
+    const itensArr = p.itens || [];
+    document.getElementById("tp-itens").innerHTML = itensArr.length
+      ? itensArr.map((it) => `<li>${formatItem(it)}</li>`).join("")
+      : "<li>Sem itens detalhados</li>";
+    document.getElementById("tp-total").textContent = money(p.total);
+    document.getElementById("tp-pagamento").textContent = p.pagamento || "—";
+    document.getElementById("tp-impresso").textContent = new Date().toLocaleString("pt-BR");
+    document.body.classList.add("printing");
+    window.print();
+  }
+  window.addEventListener("afterprint", () => document.body.classList.remove("printing"));
 
   document.getElementById("pedidos-search").addEventListener("input", (e) => {
     pedidosSearchTerm = e.target.value;
